@@ -1,0 +1,98 @@
+soccer-analytics-backend/
+├── app/
+│   ├── __init__.py
+│   ├── main.py                    # FastAPI application entry point
+│   ├── celery_app.py              # Celery configuration
+│   │
+│   ├── api/
+│   │   ├── __init__.py
+│   │   └── v1/
+│   │       ├── __init__.py
+│   │       └── endpoints/
+│   │           ├── __init__.py
+│   │           └── players.py     # Player API endpoints
+│   │
+│   ├── core/
+│   │   ├── __init__.py
+│   │   └── config.py              # Application settings
+│   │
+│   ├── crud/
+│   │   ├── __init__.py
+│   │   └── player.py              # Player CRUD operations
+│   │
+│   ├── db/
+│   │   ├── __init__.py
+│   │   └── session.py             # Database session management
+│   │
+│   ├── models/
+│   │   ├── __init__.py
+│   │   └── player.py              # SQLAlchemy Player model
+│   │
+│   ├── schemas/
+│   │   ├── __init__.py
+│   │   └── player.py              # Pydantic schemas
+│   │
+│   └── tasks/
+│       ├── __init__.py
+│       └── scraping_tasks.py      # Celery background tasks
+│
+├── migrations/
+│   ├── versions/
+│   │   └── 001_initial_migration.py
+│   ├── env.py                     # Alembic environment
+│   ├── script.py.mako             # Migration template
+│   └── README                     # Migration instructions
+│
+├── .env                           # Environment variables (local)
+├── .env.example                   # Environment template
+├── .gitignore                     # Git ignore rules
+├── alembic.ini                    # Alembic configuration
+├── docker-compose.yml             # Docker services
+├── Dockerfile                     # Application container
+├── Makefile                       # Command shortcuts
+├── pyproject.toml                 # Python dependencies
+├── setup.sh                       # Setup script
+├── README.md                      # Main documentation
+├── QUICKSTART.md                  # Quick start guide
+├── PROJECT_SUMMARY.md             # Project summary
+└── DIRECTORY_TREE.txt             # This file
+
+Total Files: 31
+Total Directories: 11
+
+Key Components:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📁 app/                   Main application package
+  ├─ 📄 main.py           FastAPI app & configuration
+  ├─ 📄 celery_app.py     Celery worker configuration
+  │
+  ├─ 📂 api/              REST API layer
+  │   └─ v1/endpoints/    API version 1 endpoints
+  │
+  ├─ 📂 core/             Core configuration
+  │   └─ config.py        Settings management
+  │
+  ├─ 📂 crud/             Database operations
+  │   └─ player.py        Player CRUD
+  │
+  ├─ 📂 db/               Database layer
+  │   └─ session.py       Session management
+  │
+  ├─ 📂 models/           SQLAlchemy models
+  │   └─ player.py        Player model
+  │
+  ├─ 📂 schemas/          Pydantic schemas
+  │   └─ player.py        Validation schemas
+  │
+  └─ 📂 tasks/            Background tasks
+      └─ scraping_tasks.py Celery tasks
+
+📁 migrations/            Database migrations
+  ├─ versions/            Migration versions
+  └─ env.py               Alembic environment
+
+📄 docker-compose.yml     6 services orchestration
+📄 Dockerfile             Multi-stage build
+📄 pyproject.toml         Poetry dependencies
+📄 alembic.ini            Migration config
+📄 Makefile               Development commands

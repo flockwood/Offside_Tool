@@ -1,0 +1,39 @@
+# Test-specific Dockerfile with dev dependencies
+FROM python:3.11-slim
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    POETRY_VERSION=1.7.1 \
+    POETRY_HOME="/opt/poetry" \
+    POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_IN_PROJECT=1 \
+    POETRY_VIRTUALENVS_CREATE=1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Poetry
+RUN pip install "poetry==$POETRY_VERSION"
+
+WORKDIR /app
+
+# Copy dependency files
+COPY pyproject.toml ./
+
+# Install ALL dependencies including dev
+RUN poetry install --with dev --no-root
+
+# Copy application code and tests
+COPY ./app ./app
+COPY ./tests ./tests
+COPY ./migrations ./migrations
+COPY alembic.ini .
+
+ENV PATH="/app/.venv/bin:$PATH"
+
+# Run tests by default
+CMD ["poetry", "run", "pytest", "-v"]

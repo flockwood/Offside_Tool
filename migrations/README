@@ -1,0 +1,67 @@
+# Alembic Migrations
+
+This directory contains database migrations for the Soccer Analytics Backend.
+
+## How to Use
+
+### Create a new migration
+
+```bash
+alembic revision --autogenerate -m "Description of changes"
+```
+
+### Apply migrations
+
+```bash
+# Upgrade to latest version
+alembic upgrade head
+
+# Upgrade one step
+alembic upgrade +1
+
+# Upgrade to specific revision
+alembic upgrade <revision_id>
+```
+
+### Rollback migrations
+
+```bash
+# Downgrade one step
+alembic downgrade -1
+
+# Downgrade to specific revision
+alembic downgrade <revision_id>
+
+# Downgrade to base (remove all)
+alembic downgrade base
+```
+
+### Check migration status
+
+```bash
+# Show current revision
+alembic current
+
+# Show migration history
+alembic history
+
+# Show SQL that would be executed (dry run)
+alembic upgrade head --sql
+```
+
+## Migration Best Practices
+
+1. **Always review auto-generated migrations** - Alembic's autogenerate is helpful but not perfect
+2. **Test migrations in development** before applying to production
+3. **Write both upgrade() and downgrade()** functions
+4. **Keep migrations small and focused** - one logical change per migration
+5. **Never modify applied migrations** - create a new migration instead
+6. **Use meaningful revision messages** - describe what the migration does
+
+## Initial Migration
+
+The initial migration (`001_initial_migration.py`) creates:
+- `players` table with all necessary columns
+- Enum types for `player_position` and `preferred_foot`
+- Indexes for frequently queried columns
+- Trigger for automatic `updated_at` timestamp updates
