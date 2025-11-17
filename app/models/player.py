@@ -2,12 +2,16 @@
 Player database model using SQLAlchemy 2.0.
 """
 from datetime import datetime, date
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from sqlalchemy import String, Integer, Float, Date, DateTime, Text, Enum as SQLEnum
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 import enum
 
 from app.db.session import Base
+from app.models.watchlist import watchlist_association
+
+if TYPE_CHECKING:
+    from app.models.user import User
 
 
 class PlayerPosition(str, enum.Enum):
@@ -114,6 +118,14 @@ class Player(Base):
         default=datetime.utcnow,
         onupdate=datetime.utcnow,
         nullable=False
+    )
+
+    # Relationships
+    watched_by_users: Mapped[list["User"]] = relationship(
+        "User",
+        secondary=watchlist_association,
+        back_populates="watchlist_players",
+        lazy="selectin"
     )
 
     def __repr__(self) -> str:

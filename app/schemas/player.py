@@ -342,3 +342,37 @@ class PlayerComparisonResponse(BaseModel):
             }
         }
     )
+
+
+class PlayerSearch(BaseModel):
+    """
+    Schema for advanced player search parameters.
+
+    All fields are optional - only provided fields will be used as search filters.
+    """
+    club: Optional[str] = Field(None, max_length=200, description="Filter by current club (case-insensitive)")
+    nationality: Optional[str] = Field(None, max_length=100, description="Filter by nationality (case-insensitive)")
+    position: Optional[PlayerPosition] = Field(None, description="Filter by player position")
+    min_age: Optional[int] = Field(None, ge=10, le=60, description="Minimum age (inclusive)")
+    max_age: Optional[int] = Field(None, ge=10, le=60, description="Maximum age (inclusive)")
+
+    @field_validator("max_age")
+    @classmethod
+    def validate_age_range(cls, v: Optional[int], info) -> Optional[int]:
+        """Validate that max_age is greater than or equal to min_age."""
+        if v is not None and info.data.get("min_age") is not None:
+            if v < info.data["min_age"]:
+                raise ValueError("max_age must be greater than or equal to min_age")
+        return v
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "club": "Manchester City",
+                "nationality": "Brazil",
+                "position": "midfielder",
+                "min_age": 20,
+                "max_age": 30
+            }
+        }
+    )

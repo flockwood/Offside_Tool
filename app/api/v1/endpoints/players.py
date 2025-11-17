@@ -16,6 +16,7 @@ from app.schemas.player import (
     ComparisonMetric,
     PlayerComparisonSummary,
     PlayerComparisonResponse,
+    PlayerSearch,
 )
 from app.models.player import PlayerPosition
 from app.api import deps
@@ -130,6 +131,50 @@ async def search_players(
     - Valid JWT token in Authorization header
     """
     players = await player_crud.search_players_by_name(db, name_query=name)
+    return [Player.from_orm_model(p) for p in players]
+
+
+@router.post(
+    "/search/advanced",
+    response_model=list[Player],
+    summary="Advanced multi-parameter player search"
+)
+async def advanced_search_players(
+    search_params: PlayerSearch,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    Advanced player search with multiple optional filters (Protected endpoint - requires authentication).
+
+    Filter players by club, nationality, position, and age range.
+    All parameters are optional - only provided filters will be applied.
+
+    Parameters (all optional):
+    - **club**: Filter by current club (case-insensitive)
+    - **nationality**: Filter by nationality (case-insensitive)
+    - **position**: Filter by position (goalkeeper, defender, midfielder, forward)
+    - **min_age**: Minimum age (inclusive)
+    - **max_age**: Maximum age (inclusive)
+
+    Returns:
+    - List of players matching ALL provided criteria
+    - Empty list if no matches found
+
+    Requires:
+    - Valid JWT token in Authorization header
+
+    Example request body:
+    ```json
+    {
+        "club": "Manchester City",
+        "position": "midfielder",
+        "min_age": 20,
+        "max_age": 30
+    }
+    ```
+    """
+    players = await player_crud.advanced_search_players(db, search_params)
     return [Player.from_orm_model(p) for p in players]
 
 

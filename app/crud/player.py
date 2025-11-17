@@ -2,11 +2,12 @@
 CRUD operations for Player model using SQLAlchemy 2.0 async patterns.
 """
 from typing import Optional, List, Any
+from datetime import date, timedelta
 from sqlalchemy import select, func, or_, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.player import Player, PlayerPosition
-from app.schemas.player import PlayerCreate, PlayerUpdate
+from app.schemas.player import PlayerCreate, PlayerUpdate, PlayerSearch
 
 
 class CRUDPlayer:
@@ -327,6 +328,69 @@ class CRUDPlayer:
             "average_rating": round(float(avg_rating), 2) if avg_rating else 0,
             "players_by_position": position_counts,
         }
+
+    async def advanced_search_players(
+        self,
+        db: AsyncSession,
+        search_params: PlayerSearch
+    ) -> List[Player]:
+        """
+        Advanced search for players with multiple optional filters.
+
+        Dynamically builds a query based on provided search parameters.
+        For age filtering, calculates date of birth range from min_age and max_age.
+
+        Args:
+            db: Database session
+            search_params: PlayerSearch schema with optional filter parameters
+
+        Returns:
+            List of players matching all provided criteria
+        """
+        # Start with base query
+        query = select(Player)
+
+        # Build dynamic filters
+        filters = []
+
+        # Filter by club (case-insensitive)
+        if search_params.club is not None:
+            filters.append(func.lower(Player.current_club) == search_params.club.lower())
+
+        # Filter by nationality (case-insensitive)
+        if search_params.nationality is not None:
+            filters.append(func.lower(Player.nationality) == search_params.nationality.lower())
+
+        # Filter by position
+        if search_params.position is not None:
+            filters.append(Player.position == search_params.position)
+
+        # Filter by age range
+        # Calculate date of birth range from age constraints
+        today = date.today()
+
+        if search_params.min_age is not None:
+            # min_age means player must be AT LEAST this old
+            # So date_of_birth must be ON OR BEFORE this date
+            max_dob = date(today.year - search_params.min_age, today.month, today.day)
+            filters.append(Player.date_of_birth <= max_dob)
+
+        if search_params.max_age is not None:
+            # max_age means player must be AT MOST this old
+            # So date_of_birth must be ON OR AFTER this date
+            # Add 1 year because we want the player to be exactly max_age or younger
+            min_dob = date(today.year - search_params.max_age - 1, today.month, today.day) + timedelta(days=1)
+            filters.append(Player.date_of_birth >= min_dob)
+
+        # Apply all filters
+        if filters:
+            query = query.where(and_(*filters))
+
+        # Execute query
+        result = await db.execute(query.order_by(Player.last_name, Player.first_name))
+        players = result.scalars().all()
+
+        return list(players)
 
 
 # Create a singleton instance

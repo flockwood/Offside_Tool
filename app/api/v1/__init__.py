@@ -1,6 +1,6 @@
 """API v1 module."""
 from fastapi import APIRouter
-from app.api.v1.endpoints import players, auth, users
+from app.api.v1.endpoints import players, auth, users, watchlist
 
 api_router = APIRouter()
 
@@ -22,4 +22,11 @@ api_router.include_router(
     players.router,
     prefix="/players",
     tags=["players"],
+)
+
+# Include watchlist endpoints
+api_router.include_router(
+    watchlist.router,
+    prefix="/watchlist",
+    tags=["watchlist"],
 )

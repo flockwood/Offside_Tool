@@ -3,9 +3,14 @@ User database model using SQLAlchemy 2.0.
 """
 from datetime import datetime
 from sqlalchemy import String, Integer, Boolean, DateTime
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from typing import TYPE_CHECKING
 
 from app.db.session import Base
+from app.models.watchlist import watchlist_association
+
+if TYPE_CHECKING:
+    from app.models.player import Player
 
 
 class User(Base):
@@ -44,6 +49,14 @@ class User(Base):
         default=datetime.utcnow,
         onupdate=datetime.utcnow,
         nullable=False
+    )
+
+    # Relationships
+    watchlist_players: Mapped[list["Player"]] = relationship(
+        "Player",
+        secondary=watchlist_association,
+        back_populates="watched_by_users",
+        lazy="selectin"
     )
 
     def __repr__(self) -> str:
